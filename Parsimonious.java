@@ -157,17 +157,11 @@ class Lexer
 
 	//inefficient but quick and dirty
 	private static String[] extendArray(String[] input, String element)
-	{	//if statement due to nasty empty array corner case
-		String[] returnme = new String[input.length+1];
-		int i;
-		for (i=0; i<returnme.length; i++)
-		{	if (i == input.length)
-			{	returnme[i] = element;
-			}
-			else
-			{	returnme[i] = input[i];
-			}
-		}		
+	{	String[] returnme = new String[input.length+1];
+		for (int i=0; i<returnme.length-1; i++)
+		{	returnme[i] = input[i];
+		}
+		returnme[returnme.length-1] = element;
 		return returnme;
 	}
 
