@@ -11,11 +11,8 @@ import java.io.InputStreamReader;
 
 public class Parsimonious
 {	public static void main(String[] args)
-	{	//intro
-		System.out.printf("The following operators are accepted in descending order of priority:%n");
-		System.out.printf("cos ! * + - (cos in radians, ! only on integers)%n");
+	{	System.out.printf("Operators accepted: cos ! * + - (descending priority, cos in degrees, ! only on integers)%n");
 		System.out.printf("Signed floating point numbers are accepted in the forms 0, 0.0 or .0 (negative numbers must use ~) %n");
-		System.out.printf("********************************************%n");
 		System.out.printf("Type a mathematical expression and hit enter. All whitespace will be ignored.%n");
 
 		InputStreamReader input = new InputStreamReader(System.in);
