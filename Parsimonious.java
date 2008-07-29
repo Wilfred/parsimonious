@@ -73,14 +73,8 @@ class Token
 	}
 
 	public Token(String value)
-	{	if (Lexer.isValidOperator(value))
-		{	operatorName = value;
-			isOperator = true;
-		}
-		else
-		{	System.out.printf("'%s' is not a valid operator.%n",value);
-			System.exit(1);
-		}
+	{	operatorName = value;
+		isOperator = true;
 	}
 
 	public Token(float value)
@@ -116,29 +110,32 @@ class Lexer
 	public static String[] separateTokens(String input)
 	{	String[] returnme = new String[0];
 		for (int i=0; i<input.length(); i++)
-		{	if (isShortOperator(input.charAt(i)))
-			{	returnme = extendArray(returnme,input.charAt(i)+""); //single character operator token
-			}
-			else if (isNumeric(input.charAt(i)))
-			{	if (i == 0) //expression starts with a number
+		{	if (isNumeric(input.charAt(i)))
+			{	if (i == 0) //we are at the start so don't look backwards
 				{	returnme = extendArray(returnme,input.charAt(i)+"");
 				}
 				else
-				{	if (isNumeric(returnme[returnme.length-1].charAt(0))) //first character of last token is numeric
-					{	//last token is number so far, add this digit or d.p. to it
-						returnme[returnme.length-1] = returnme[returnme.length-1] + input.charAt(i);
+				{	if (isNumeric(returnme[returnme.length-1].charAt(0))) //last token is numeric, extend with this character
+					{	returnme[returnme.length-1] = returnme[returnme.length-1] + input.charAt(i);
 					}
 					else //last token was operator, start new token
 					{	returnme = extendArray(returnme,input.charAt(i)+"");
 					}
 				}
 			}
-			else //is hopefully a valid cos token, but we haven't checked yet, so we just take the next 3 characters
-			{	//risk of IndexException here, so catch it (occurs if expression ends 'c' or 'co' etc)
-				try
-				{	String token = "" + input.charAt(i) + input.charAt(i+1) + input.charAt(i+2);
-					returnme = extendArray(returnme,token);
-					i += 2;
+			else
+			{	try
+				{	if (Lexer.isValidOperator(input.charAt(i)+""))
+					{	returnme = extendArray(returnme,input.charAt(i)+""); //single character operator
+					}
+					else if (Lexer.isValidOperator( input.charAt(i) + input.charAt(i+1) + input.charAt(i+2) + ""))
+					{	returnme = extendArray(returnme,input.charAt(i) + input.charAt(i+1) + input.charAt(i+2) + ""); //3 character operator
+						i += 2;
+					}
+					else
+					{	System.out.printf("Neither '%s' nor '%s' are valid operators.%n",input.charAt(i),input.charAt(i) + input.charAt(i+1) + input.charAt(i+2));
+						System.exit(1);
+					}
 				}
 				catch (StringIndexOutOfBoundsException e)
 				{	System.out.printf("Syntax error: Invalid operator length.%n");
@@ -157,7 +154,7 @@ class Lexer
 				{	returnme[i] = new Token(Float.parseFloat(tokenStrings[i]));
 				}
 				catch (NumberFormatException e)
-				{	System.out.printf("Not a recognised operator or number: %s%n",e.getMessage());
+				{	System.out.printf("Not a recognised number: %s%n",e.getMessage());
 					System.exit(1);
 				}
 			}
@@ -166,20 +163,6 @@ class Lexer
 			}
 		}
 		return returnme;
-	}
-
-	private static void validateOperatorToken(Token token)
-	{	if (token.getValue().length() == 1 && isShortOperator(token.getValue().charAt(0)))
-		{	//it's a valid single character operator token
-			return;
-		}
-		else if (token.getValue().equals("cos"))
-		{	return;
-		}
-		else
-		{	System.out.printf("Syntax error:'%s' is not a valid operator.%n",token);
-			System.exit(1);
-		}
 	}
 
 	//inefficient but quick and dirty
@@ -202,15 +185,6 @@ class Lexer
 	{	if (input == '0' || input == '1' || input == '2' || input == '3' || 
 		    input == '4' || input == '5' || input == '6' || input == '7' || 
 		    input == '8' || input == '9' || input == '.' || input == '~')
-		{	return true;
-		}
-		else
-		{	return false;
-		}
-	}
-
-	private static boolean isShortOperator(char input) //ie operator other than cos
-	{	if (input == '!' || input == '*' || input == '+' || input == '-')
 		{	return true;
 		}
 		else
