@@ -3,7 +3,7 @@ import java.io.InputStreamReader;
 /**
  * Parsimonious - a mathematical parser.
  * Known bugs: Will only process one line with each run. Does not do any maths. Does not validate grammar. No tree traversal.
- * Should use Exceptions rather than exiting.
+ * Should use Exceptions rather than exiting. Does not yet accept ~ for negative numbers.
  * @author Wilfred Hughes
  */
 
@@ -14,7 +14,7 @@ public class Parsimonious
 	{	//intro
 		System.out.printf("The following operators are accepted in descending order of priority:%n");
 		System.out.printf("cos ! * + - (cos in radians, ! only on integers)%n");
-		System.out.printf("Signed floating point numbers are accepted in the forms +/- 0, 0.0 or .0 (implicit: 0. and .) %n");
+		System.out.printf("Signed floating point numbers are accepted in the forms 0, 0.0 or .0 (negative numbers must use ~) %n");
 		System.out.printf("********************************************%n");
 		System.out.printf("Type a mathematical expression and hit enter. All whitespace will be ignored.%n");
 
@@ -55,7 +55,7 @@ public class Parsimonious
 		//System.out.printf("Parsed result: "); printArray(mathsArray);
 	}
 
-	private static void printArray(Object[] input) //we want to be able to print strings or tokens
+	private static void printArray(Object[] input) //accepts strings or tokens
 	{	for (int i=0; i<input.length; i++)
 		{	System.out.printf("%s ",input[i]);
 		}
@@ -201,7 +201,7 @@ class Lexer
 	private static boolean isNumeric(char input)
 	{	if (input == '0' || input == '1' || input == '2' || input == '3' || 
 		    input == '4' || input == '5' || input == '6' || input == '7' || 
-		    input == '8' || input == '9' || input == '.')
+		    input == '8' || input == '9' || input == '.' || input == '~')
 		{	return true;
 		}
 		else
