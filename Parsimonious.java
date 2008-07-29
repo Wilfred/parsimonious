@@ -38,12 +38,12 @@ public class Parsimonious
 		String strippedInput = Lexer.removeWhitespace(inputString);
 		System.out.printf("Stripping whitespace: %s%n",strippedInput);
 
-		System.out.printf("Separating String into tokens...");
+		System.out.printf("Separating String into tokens and validating operators...");
 		String[] tokenArray = Lexer.separateTokens(strippedInput);
 		System.out.printf("OK%n");
 		System.out.printf("Current String array: "); printArray(tokenArray);
 
-		System.out.printf("Tokenising...");
+		System.out.printf("Tokenising and validating numbers...");
 		Token[] mathsArray = Lexer.tokenise(tokenArray);
 		System.out.printf("OK%n");
 		System.out.printf("Current Token array: "); printArray(mathsArray);
@@ -106,16 +106,11 @@ class Lexer
 	{	String[] returnme = new String[0];
 		for (int i=0; i<input.length(); i++)
 		{	if (isNumeric(input.charAt(i)))
-			{	if (i == 0) //we are at the start so don't look backwards
-				{	returnme = extendArray(returnme,input.charAt(i)+"");
+			{	if (i != 0 && isNumeric(returnme[returnme.length-1].charAt(0))) //last token exists, is numeric, so extend with this character
+				{	returnme[returnme.length-1] = returnme[returnme.length-1] + input.charAt(i);
 				}
 				else
-				{	if (isNumeric(returnme[returnme.length-1].charAt(0))) //last token is numeric, extend with this character
-					{	returnme[returnme.length-1] = returnme[returnme.length-1] + input.charAt(i);
-					}
-					else //last token was operator, start new token
-					{	returnme = extendArray(returnme,input.charAt(i)+"");
-					}
+				{	returnme = extendArray(returnme,input.charAt(i)+"");
 				}
 			}
 			else
@@ -128,7 +123,7 @@ class Lexer
 						i += 2;
 					}
 					else
-					{	System.out.printf("Neither '%s' nor '%s' are valid operators.%n",input.charAt(i),"" + input.charAt(i) + input.charAt(i+1) + input.charAt(i+2));
+					{	System.out.printf("Neither '%s' nor '%s' are valid operators.%n",input.charAt(i),""+input.charAt(i)+input.charAt(i+1)+input.charAt(i+2));
 						System.exit(1);
 					}
 				}
