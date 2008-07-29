@@ -69,7 +69,7 @@ public class Parsimonious
 }
 
 class Token
-{	private String data;
+{	private String operatorName;
 	private boolean isOperator;
 
 	public boolean isOperator()
@@ -77,16 +77,16 @@ class Token
 	}
 
 	public Token(String value, boolean tokenIsOperator)
-	{	data = value;
+	{	operatorName = value;
 		isOperator = tokenIsOperator;
 	}
 
 	public String getValue()
-	{	return data;
+	{	return operatorName;
 	}
 
 	public String toString()
-	{	return data;
+	{	return operatorName;
 	}
 }
 
