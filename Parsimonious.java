@@ -94,10 +94,7 @@ class Lexer
 {	public static String removeWhitespace(String input)
 	{	String returnme = "";
 		for (int i=0; i<input.length(); i++)
-		{	if((int)input.charAt(i) == 9 || (int)input.charAt(i) == 32) //tab or space
-			{	//do nothing
-			}
-			else
+		{	if((int)input.charAt(i) != 9 && (int)input.charAt(i) != 32) //not tab or space
 			{	returnme = returnme + input.charAt(i);
 			}
 		}
