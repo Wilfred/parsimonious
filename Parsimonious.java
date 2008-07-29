@@ -78,7 +78,7 @@ class Token
 			isOperator = true;
 		}
 		else
-		{	System.out.printf("'%s' is not a valid operator.",value);
+		{	System.out.printf("'%s' is not a valid operator.%n",value);
 			System.exit(1);
 		}
 	}
