@@ -17,7 +17,6 @@ public class Parsimonious
 		System.out.printf("********************************************%n");
 		System.out.printf("Type a mathematical expression and hit enter. All whitespace will be ignored.%n");
 
-		//take input
 		InputStreamReader input = new InputStreamReader(System.in);
 
 		String inputString = ""; //need to instantiate this outside the try block to keep java happy
@@ -32,8 +31,7 @@ public class Parsimonious
 			System.out.printf("Original input is: %s%n",inputString);
 		}
 		catch (java.io.IOException e) 
-		{	//I'm not convinced this is ever called
-			System.out.println("IOException! Exiting.");
+		{	System.out.println("IOException! Exiting.");
 			System.exit(1);
 		}
 
@@ -70,11 +68,6 @@ public class Parsimonious
 	}
 }
 
-/**
- * Necessity is the mother of invention - a token class. Can be either a number or an operator.
- *
- */
-
 class Token
 {	private String data;
 	private boolean isOperator;
@@ -97,10 +90,6 @@ class Token
 	}
 }
 
-/**
- * The Lexer class is a collection of static methods that ensure the parser only recieves valid tokens.
- */
-
 class Lexer
 {	public static String removeWhitespace(String input)
 	{	String returnme = "";
@@ -115,11 +104,6 @@ class Lexer
 		return returnme;
 	}
 
-	/**
-	 * checkCharacters searches a string for illegal characters. It is the first line of defence from invalid syntax.
-	 * @deprecated 
-	 */
-
 	public static void checkCharacters(String input)
 	{	for (int i=0; i<input.length(); i++)
 		{	if (isNumeric(input.charAt(i)) || isShortOperator(input.charAt(i)) || 
@@ -132,10 +116,6 @@ class Lexer
 			}
 		}
 	}
-
-	/**
-	 * tokenise takes a String that only contains valid characters and returns an array of tokens.
-	 */
 
 	public static Token[] tokenise(String input)
 	{	String[] returnme = new String[0];
@@ -186,10 +166,6 @@ class Lexer
 		}
 		return returnme;
 	}
-
-	/**
-	 * validateTokens checks tokens are valid operators or number, and normalises the numbers. It uses validateOperatorToken and normaliseNumericToken to do the work.
-	 */
 
 	public static void validateTokens(Token[] tokenArray)
 	{	for (int i=0; i<tokenArray.length; i++)
@@ -279,12 +255,6 @@ class Lexer
 		}
 	}
 }
-
-/**
- * The parser class is a collection of methods that gradually replace operators with their numeric results.
- * By using the removeEmptyTokens(...) method we should only have a one element array when we finish.
- * The only the way the parser class is used by calling Parser.parse(tokenArray), everything else is private.
- */
 
 class Parser
 {	public static String parse(String[] tokenArray)
