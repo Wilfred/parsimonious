@@ -10,26 +10,18 @@ import java.io.InputStreamReader;
 // invalid syntax suggestions: "1.0.1" "sin" "css" "coos" "3**3" "2 co"
 
 public class Parsimonious
-{	public static void main(String[] args)
+{	public static void main(String[] args) throws java.io.IOException //declaring exception because code is cleaner and I think it's never thrown
 	{	System.out.printf("Operators accepted: cos ! * + - (descending priority, cos in degrees, ! only on integers)%n");
 		System.out.printf("Signed floating point numbers are accepted in the forms 0, 0.0 or .0 (negative numbers must use ~) %n");
 		System.out.printf("Type a mathematical expression and hit enter. All whitespace will be ignored.%n");
 
 		InputStreamReader input = new InputStreamReader(System.in);
-
-		String inputString = ""; //need to instantiate this outside the try block to keep java happy
-
-		try
-		{	int a = input.read();
-			//put input in string
-			while (a != -1 && a != 10) //-1 is end of stream, 10 is character return
-			{	inputString = inputString + (char)a;
-				a = input.read();
-			}
-		}
-		catch (java.io.IOException e) 
-		{	System.out.println("IOException! Exiting.");
-			System.exit(1);
+		String inputString = "";
+		int a = input.read();
+		//put input in string
+		while (a != -1 && a != 10) //-1 is end of stream, 10 is character return
+		{	inputString = inputString + (char)a;
+			a = input.read();
 		}
 
 		String strippedInput = Lexer.removeWhitespace(inputString);
