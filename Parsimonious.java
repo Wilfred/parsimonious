@@ -73,7 +73,7 @@ class Token
 	}
 
 	public Token(String value)
-	{	if (value.equals("+") || value.equals("-") || value.equals("*") || value.equals("!") || value.equals("cos"))
+	{	if (Lexer.isValidOperator(value))
 		{	operatorName = value;
 			isOperator = true;
 		}
@@ -211,6 +211,15 @@ class Lexer
 
 	private static boolean isShortOperator(char input) //ie operator other than cos
 	{	if (input == '!' || input == '*' || input == '+' || input == '-')
+		{	return true;
+		}
+		else
+		{	return false;
+		}
+	}
+
+	private static boolean isValidOperator(String input)
+	{	if (input.equals("+") || input.equals("-") || input.equals("*") || input.equals("!") || input.equals("cos"))
 		{	return true;
 		}
 		else
