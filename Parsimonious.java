@@ -40,7 +40,7 @@ public class Parsimonious
 		System.out.printf("OK%n");
 		System.out.printf("Current String array: "); printArray(tokenArray);
 
-		System.out.printf("Tokenising and validating numbers...");
+		System.out.printf("Validating numbers and tokenising...");
 		Token[] mathsArray = Lexer.tokenise(tokenArray);
 		System.out.printf("OK%n");
 		System.out.printf("Current Token array: "); printArray(mathsArray);
