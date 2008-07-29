@@ -13,7 +13,7 @@ public class Parsimonious
 	{	//intro
 		System.out.printf("The following operators are accepted in descending order of priority:%n");
 		System.out.printf("cos ! * + - (cos in radians, ! only on integers)%n");
-		System.out.printf("Real number are accepted in the forms 0, 0.0 or .0 (implicit: 0. and .) (and stored as doubles)%n");
+		System.out.printf("Signed floating point numbers are accepted in the forms +/- 0, 0.0 or .0 (implicit: 0. and .) %n");
 		System.out.printf("********************************************%n");
 		System.out.printf("Type a mathematical expression and hit enter. All whitespace will be ignored.%n");
 
@@ -71,22 +71,33 @@ public class Parsimonious
 class Token
 {	private String operatorName;
 	private boolean isOperator;
+	private float number;
 
 	public boolean isOperator()
 	{	return isOperator;
 	}
 
-	public Token(String value, boolean tokenIsOperator)
+	public Token(String value)
 	{	operatorName = value;
-		isOperator = tokenIsOperator;
+		isOperator = true;
+	}
+
+	public Token(float value)
+	{	number = value;
+		isOperator = false;
 	}
 
 	public String getValue()
-	{	return operatorName;
+	{	if (isOperator)
+		{	return operatorName;
+		}
+		else
+		{	return "" + number;
+		}
 	}
 
 	public String toString()
-	{	return operatorName;
+	{	return this.getValue();
 	}
 }
 
@@ -150,15 +161,14 @@ class Lexer
 		return toTokens(returnme);
 	}
 
-	private static Token[] toTokens(String[] tokenStrings)
+	private static Token[] toTokens(String[] tokenStrings) //we really want to perform validation here or in the token class
 	{	Token[] returnme = new Token[tokenStrings.length];
 		for (int i=0; i<tokenStrings.length; i++)
 		{	if (tokenStrings[i].charAt(0) == 'c' || isShortOperator(tokenStrings[i].charAt(0)))
-			{	returnme[i] = new Token(tokenStrings[i],true);
+			{	returnme[i] = new Token(tokenStrings[i]);
 			}
 			else
-			{	//numeric token
-				returnme[i] = new Token(tokenStrings[i],false);
+			{	returnme[i] = new Token(Float.parseFloat(tokenStrings[i]));
 			}
 		}
 		return returnme;
@@ -170,7 +180,7 @@ class Lexer
 			{	validateOperatorToken(tokenArray[i]);
 			}
 			else
-			{	tokenArray[i] = normaliseNumericToken(tokenArray[i]);
+			{	//numbers should be ok
 			}
 		}
 	}
@@ -187,33 +197,6 @@ class Lexer
 		{	System.out.printf("Syntax error:'%s' is not a valid operator.%n",token);
 			System.exit(1);
 		}
-	}
-
-	private static Token normaliseNumericToken(Token token)
-	{	//check number has no more than one d.p., normalise to format 123.456
-		boolean afterPoint = false;
-		String returnme = token.getValue();
-		for (int i=0; i<token.getValue().length(); i++)
-		{	if (token.getValue().charAt(i) == '.')
-			{	if (!afterPoint)
-				{	afterPoint = true;
-				}
-				else //we have already seen one d.p.
-				{	System.out.printf("Syntax error: '%s': contains too many decimal points.%n",token);
-					System.exit(1);
-				}
-			}
-		}
-		if (token.getValue().charAt(0) == '.') //number of from .123 convert to 0.123
-		{	returnme = "0" + returnme;
-		}
-		if (!afterPoint) //numer without d.p.
-		{	returnme = returnme + ".0";
-		}
-		if (token.getValue().charAt(token.getValue().length()-1) == '.') //number of form 123. convert to 123.0
-		{	returnme = returnme + "0";
-		}
-		return new Token(returnme,false);
 	}
 
 	//inefficient but quick and dirty
