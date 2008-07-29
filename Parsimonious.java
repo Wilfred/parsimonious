@@ -29,7 +29,6 @@ public class Parsimonious
 			{	inputString = inputString + (char)a;
 				a = input.read();
 			}
-			System.out.printf("Original input is: %s%n",inputString);
 		}
 		catch (java.io.IOException e) 
 		{	System.out.println("IOException! Exiting.");
@@ -138,7 +137,7 @@ class Lexer
 					}
 				}
 				catch (StringIndexOutOfBoundsException e)
-				{	System.out.printf("Syntax error: Invalid operator length.%n");
+				{	System.out.printf("Invalid operator length.%n");
 					System.exit(1);
 				}
 			}
