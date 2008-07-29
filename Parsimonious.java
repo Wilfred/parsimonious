@@ -39,17 +39,15 @@ public class Parsimonious
 		String strippedInput = Lexer.removeWhitespace(inputString);
 		System.out.printf("Stripping whitespace: %s%n",strippedInput);
 
+		System.out.printf("Separating String into tokens...");
+		String[] tokenArray = Lexer.separateTokens(strippedInput);
+		System.out.printf("OK%n");
+		System.out.printf("Current String array: "); printArray(tokenArray);
+
 		System.out.printf("Tokenising...");
-		Token[] mathsArray = Lexer.tokenise(strippedInput);
+		Token[] mathsArray = Lexer.tokenise(tokenArray);
 		System.out.printf("OK%n");
-		System.out.printf("Current token array: "); printArray(mathsArray);
-
-		System.out.printf("Checking syntax and normalising numbers...");
-		Lexer.validateTokens(mathsArray);
-		System.out.printf("OK%n");
-
-		System.out.printf("mathsArray contains: ");
-		printArray(mathsArray);
+		System.out.printf("Current Token array: "); printArray(mathsArray);
 		
 		//validate grammar
 		//parse
@@ -115,7 +113,7 @@ class Lexer
 		return returnme;
 	}
 
-	public static Token[] tokenise(String input)
+	public static String[] separateTokens(String input)
 	{	String[] returnme = new String[0];
 		for (int i=0; i<input.length(); i++)
 		{	if (isShortOperator(input.charAt(i)))
@@ -148,16 +146,13 @@ class Lexer
 				}
 			}
 		}
-		return toTokens(returnme);
+		return returnme;
 	}
 
-	private static Token[] toTokens(String[] tokenStrings)
+	public static Token[] tokenise(String[] tokenStrings)
 	{	Token[] returnme = new Token[tokenStrings.length];
 		for (int i=0; i<tokenStrings.length; i++)
-		{	if (tokenStrings[i].charAt(0) == 'c' || isShortOperator(tokenStrings[i].charAt(0)))
-			{	returnme[i] = new Token(tokenStrings[i]);
-			}
-			else
+		{	if (isNumeric(tokenStrings[i].charAt(0)))
 			{	try
 				{	returnme[i] = new Token(Float.parseFloat(tokenStrings[i]));
 				}
@@ -166,19 +161,11 @@ class Lexer
 					System.exit(1);
 				}
 			}
+			else
+			{	returnme[i] = new Token(tokenStrings[i]);	
+			}
 		}
 		return returnme;
-	}
-
-	public static void validateTokens(Token[] tokenArray)
-	{	for (int i=0; i<tokenArray.length; i++)
-		{	if (tokenArray[i].isOperator())
-			{	validateOperatorToken(tokenArray[i]);
-			}
-			else
-			{	//numbers should be ok
-			}
-		}
 	}
 
 	private static void validateOperatorToken(Token token)
