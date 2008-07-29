@@ -3,6 +3,7 @@ import java.io.InputStreamReader;
 /**
  * Parsimonious - a mathematical parser.
  * Known bugs: Will only process one line with each run. Does not do any maths. Does not validate grammar. No tree traversal.
+ * Should use Exceptions rather than exiting.
  * @author Wilfred Hughes
  */
 
@@ -37,10 +38,6 @@ public class Parsimonious
 
 		String strippedInput = Lexer.removeWhitespace(inputString);
 		System.out.printf("Stripping whitespace: %s%n",strippedInput);
-
-		System.out.printf("Checking for illegal characters...");
-		Lexer.checkCharacters(strippedInput);
-		System.out.printf("OK%n");
 
 		System.out.printf("Tokenising...");
 		Token[] mathsArray = Lexer.tokenise(strippedInput);
@@ -78,8 +75,14 @@ class Token
 	}
 
 	public Token(String value)
-	{	operatorName = value;
-		isOperator = true;
+	{	if (value.equals("+") || value.equals("-") || value.equals("*") || value.equals("!") || value.equals("cos"))
+		{	operatorName = value;
+			isOperator = true;
+		}
+		else
+		{	System.out.printf("'%s' is not a valid operator.",value);
+			System.exit(1);
+		}
 	}
 
 	public Token(float value)
@@ -112,19 +115,6 @@ class Lexer
 		return returnme;
 	}
 
-	public static void checkCharacters(String input)
-	{	for (int i=0; i<input.length(); i++)
-		{	if (isNumeric(input.charAt(i)) || isShortOperator(input.charAt(i)) || 
-				input.charAt(i) == 'c' || input.charAt(i) == 'o' || input.charAt(i) == 's')
-			{	//is a valid character
-			}
-			else
-			{	System.out.printf("'%s' is an invalid character, sorry.%n",input.charAt(i));
-				System.exit(1);
-			}
-		}
-	}
-
 	public static Token[] tokenise(String input)
 	{	String[] returnme = new String[0];
 		for (int i=0; i<input.length(); i++)
@@ -153,7 +143,7 @@ class Lexer
 					i += 2;
 				}
 				catch (StringIndexOutOfBoundsException e)
-				{	System.out.printf("Syntax error: Operators can only be 1 or 3 characters long.%n");
+				{	System.out.printf("Syntax error: Invalid operator length.%n");
 					System.exit(1);
 				}
 			}
@@ -161,14 +151,20 @@ class Lexer
 		return toTokens(returnme);
 	}
 
-	private static Token[] toTokens(String[] tokenStrings) //we really want to perform validation here or in the token class
+	private static Token[] toTokens(String[] tokenStrings)
 	{	Token[] returnme = new Token[tokenStrings.length];
 		for (int i=0; i<tokenStrings.length; i++)
 		{	if (tokenStrings[i].charAt(0) == 'c' || isShortOperator(tokenStrings[i].charAt(0)))
 			{	returnme[i] = new Token(tokenStrings[i]);
 			}
 			else
-			{	returnme[i] = new Token(Float.parseFloat(tokenStrings[i]));
+			{	try
+				{	returnme[i] = new Token(Float.parseFloat(tokenStrings[i]));
+				}
+				catch (NumberFormatException e)
+				{	System.out.printf("Not a recognised operator or number: %s%n",e.getMessage());
+					System.exit(1);
+				}
 			}
 		}
 		return returnme;
