@@ -128,12 +128,12 @@ class Lexer
 				{	if (Lexer.isValidOperator(input.charAt(i)+""))
 					{	returnme = extendArray(returnme,input.charAt(i)+""); //single character operator
 					}
-					else if (Lexer.isValidOperator( input.charAt(i) + input.charAt(i+1) + input.charAt(i+2) + ""))
-					{	returnme = extendArray(returnme,input.charAt(i) + input.charAt(i+1) + input.charAt(i+2) + ""); //3 character operator
+					else if (Lexer.isValidOperator("" + input.charAt(i) + input.charAt(i+1) + input.charAt(i+2)))
+					{	returnme = extendArray(returnme,"" + input.charAt(i) + input.charAt(i+1) + input.charAt(i+2)); //3 character operator
 						i += 2;
 					}
 					else
-					{	System.out.printf("Neither '%s' nor '%s' are valid operators.%n",input.charAt(i),input.charAt(i) + input.charAt(i+1) + input.charAt(i+2));
+					{	System.out.printf("Neither '%s' nor '%s' are valid operators.%n",input.charAt(i),"" + input.charAt(i) + input.charAt(i+1) + input.charAt(i+2));
 						System.exit(1);
 					}
 				}
