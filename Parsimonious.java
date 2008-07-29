@@ -2,9 +2,7 @@ import java.io.InputStreamReader;
 
 /**
  * Parsimonious - a mathematical parser.
- * Simplistic implementation with no tree traversal.
- * This class contains very little clever code, the Lexer and Parser classes do the hard work.<p>
- * Known bugs: Will only process one line with each run. Does not do any maths. Does not validate grammar.
+ * Known bugs: Will only process one line with each run. Does not do any maths. Does not validate grammar. No tree traversal.
  * @author Wilfred Hughes
  */
 
@@ -13,8 +11,6 @@ import java.io.InputStreamReader;
 public class Parsimonious
 {	public static void main(String[] args)
 	{	//intro
-		System.out.printf("********************************************%n");
-		System.out.printf("Welcome to Parsimonious 0.5%n");
 		System.out.printf("The following operators are accepted in descending order of priority:%n");
 		System.out.printf("cos ! * + - (cos in radians, ! only on integers)%n");
 		System.out.printf("Real number are accepted in the forms 0, 0.0 or .0 (implicit: 0. and .) (and stored as doubles)%n");
