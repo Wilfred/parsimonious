@@ -81,17 +81,13 @@ class Token
 		isOperator = false;
 	}
 
-	public String getValue()
+	public String toString()
 	{	if (isOperator)
 		{	return operatorName;
 		}
 		else
 		{	return "" + number;
 		}
-	}
-
-	public String toString()
-	{	return this.getValue();
 	}
 }
 
