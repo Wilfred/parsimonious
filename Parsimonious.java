@@ -237,57 +237,7 @@ class Lexer
 }
 
 class Parser
-{	public static String parse(String[] tokenArray)
-	{	parseCos(tokenArray);
-		parseFactorial(tokenArray);
-		parseMultiplication(tokenArray);
-		parseAddition(tokenArray);
-		parseSubtraction(tokenArray);
-		return tokenArray[0]; //should only have one element in array now
-	}
-
-	private static void removeEmptyTokens(String[] tokenArray)
-	{	int emptyTokenCount = 0;
-		for (int i=0; i<tokenArray.length; i++)
-		{	if (tokenArray[i].equals("Empty"))
-			{	emptyTokenCount++;
-			}
-		}
-		if (emptyTokenCount != 0)
-		{	String[] newTokenArray = new String[tokenArray.length-emptyTokenCount];
-			int j=0;
-			for (int k=0; k<tokenArray.length; k++)
-			{	newTokenArray[j] = tokenArray[k];
-				if (!tokenArray[k].equals("Empty"))
-				{	j++;
-				}
-			}
-			tokenArray = newTokenArray;
-		}
-	}
-
-	private static void parseCos(String[] tokenArray)
-	{	boolean doneSomething = false; //we need to recurse becuase of expressions like "cos cos 0.0"
-		for (int i=tokenArray.length-1; i>=0; i--) //right associative
-		{	
-		}
-	}
-
-	private static void parseFactorial(String[] tokenArray)
-	{
-	}
-
-	private static void parseMultiplication(String[] tokenArray)
-	{
-	}
-
-	private static void parseAddition(String[] tokenArray)
-	{
-	}
-
-	private static void parseSubtraction(String[] tokenArray)
-	{
-	}
+{	//coming soon
 }
 
 /* 
