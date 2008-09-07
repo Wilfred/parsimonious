@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
  * @author Wilfred Hughes
  */
 
-// invalid syntax suggestions: "1.0.1" "sin" "css" "coos" "3**3" "2 co"
+// invalid syntax suggestions: "1.0.1" "sin" "css" "coos" "3**3" "2 co" "sin!"
 
 public class Parsimonious
 {	public static void main(String[] args) throws java.io.IOException //declaring exception because code is cleaner and I think it's never thrown
