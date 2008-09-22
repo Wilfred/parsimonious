@@ -181,7 +181,13 @@ class Parser
 {	//coming soon
 }
 
-/* 
+/*
+new funky grammar:
+expr -> preop expr | postop expr | expr op expr | num
+preop -> cos
+postop -> !
+op -> * | + | -
+
 simplified grammar, showing precedence:
 expr -> cos expr
 expr -> expr !
