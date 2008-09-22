@@ -182,10 +182,6 @@ class Parser
 {	//coming soon
 }
 
-class Tree
-{
-}
-
 class Node //simple immutable tree
 {	private LinkedList<Node> children; //children
 	private Token value;
