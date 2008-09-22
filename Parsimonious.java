@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
  */
 
 // invalid syntax suggestions: "1.0.1" "sin" "css" "coos" "3**3" "2 co" "sin!"
+// test cases: "~1-~1"
 
 public class Parsimonious
 {	public static void main(String[] args) throws java.io.IOException //declaring exception because code is cleaner and I think it's never thrown
@@ -130,7 +131,8 @@ class Lexer
 		for (int i=0; i<tokenStrings.length; i++)
 		{	if (isNumeric(tokenStrings[i].charAt(0)))
 			{	try
-				{	returnme[i] = new Token(Float.parseFloat(tokenStrings[i]));
+				{	//making sure to replace ~ here so we get negative floats
+					returnme[i] = new Token(Float.parseFloat(tokenStrings[i].replace('~','-')));
 				}
 				catch (NumberFormatException e)
 				{	System.out.printf("Not a recognised number: %s%n",e.getMessage());
