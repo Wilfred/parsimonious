@@ -186,16 +186,10 @@ class Tree
 {
 }
 
-class Node
+class Node //simple immutable tree
 {	private LinkedList<Node> children; //children
 	private Token value;
 
-	public boolean isLeaf()
-	{	if (children.size() == 0)
-		{	return true;
-		}
-		return false;
-	}
 	public LinkedList<Node> getChildren()
 	{	return children;
 	}
@@ -206,10 +200,6 @@ class Node
 	{	value = t;
 		children = kids;
 	}
-	public void addChild(Node n)
-	{	children.addLast(n);
-	}
-
 }
 
 /*
