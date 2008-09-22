@@ -1,4 +1,5 @@
 import java.io.InputStreamReader;
+import java.util.LinkedList;
 
 /**
  * Parsimonious - a mathematical parser.
@@ -179,6 +180,36 @@ class Lexer
 
 class Parser
 {	//coming soon
+}
+
+class Tree
+{
+}
+
+class Node
+{	private LinkedList<Node> children; //children
+	private Token value;
+
+	public boolean isLeaf()
+	{	if (children.size() == 0)
+		{	return true;
+		}
+		return false;
+	}
+	public LinkedList<Node> getChildren()
+	{	return children;
+	}
+	public Node(Token t)
+	{	value = t;
+	}
+	public Node(Token t, LinkedList<Node> kids)
+	{	value = t;
+		children = kids;
+	}
+	public void addChild(Node n)
+	{	children.addLast(n);
+	}
+
 }
 
 /*
