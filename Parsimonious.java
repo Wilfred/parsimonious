@@ -80,6 +80,12 @@ class Token
 		{	return "" + number;
 		}
 	}
+	public float getNumber()
+	{	return number;
+	}
+	public String getOperator()
+	{	return operatorName;
+	}
 }
 
 class Lexer
@@ -179,7 +185,13 @@ class Lexer
 }
 
 class Parser
-{	//coming soon
+{	public float evaluateTree(Node node)
+	{	if (node.getChildren().size() == 0) //is leaf
+		{	return node.getToken().getNumber();
+		}
+		//examine children
+		return 0;
+	}
 }
 
 class Node //simple immutable tree
@@ -189,10 +201,17 @@ class Node //simple immutable tree
 	public LinkedList<Node> getChildren()
 	{	return children;
 	}
+	public Token getToken()
+	{	return value;
+	}
 	public Node(Token t)
 	{	value = t;
 	}
 	public Node(Token t, LinkedList<Node> kids)
+	{	value = t;
+		children = kids;
+	}
+	public void update(Token t, LinkedList<Node> kids)
 	{	value = t;
 		children = kids;
 	}
