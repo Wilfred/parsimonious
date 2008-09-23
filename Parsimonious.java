@@ -9,11 +9,11 @@ import java.util.LinkedList;
  */
 
 // invalid syntax suggestions: "1.0.1" "sin" "css" "coos" "3**3" "2 co" "sin!"
-// test cases: "~1-~1"
+// test cases: "~1-~1" "3.3!"
 
 public class Parsimonious
 {	public static void main(String[] args) throws java.io.IOException //declaring exception because code is cleaner and I think it's never thrown
-	{	System.out.printf("Operators accepted: cos ! * + - (descending priority, cos in degrees, ! only on integers)%n");
+	{	System.out.printf("Operators accepted: cos ! * + - (descending priority, cos in degrees, ! rounds to integers)%n");
 		System.out.printf("Signed floating point numbers are accepted in the forms 0, 0.0 or .0 (negative numbers must use ~) %n");
 		System.out.printf("Type a mathematical expression and hit enter. All whitespace will be ignored.%n");
 
@@ -189,8 +189,46 @@ class Parser
 	{	if (node.getChildren().size() == 0) //is leaf
 		{	return node.getToken().getNumber();
 		}
-		//examine children
-		return 0;
+		else
+		{	//would use switch statement but its too messy with variable # of children
+			LinkedList<Node> children = node.getChildren();
+			if (!node.getToken().isOperator()) //entire tree is just a number
+			{	return node.getToken().getNumber();
+			}
+			//can't use switch with string - would have been nice here :-(
+			if (node.getToken().getOperator().equals("cos"))
+			{	return (float)Math.cos(evaluateTree(children.get(0)));
+			}
+			else if (node.getToken().getOperator().equals("!"))
+			{	return factorial(Math.round(evaluateTree(children.get(0))),1); //round to int for factorial
+			}
+			else if (node.getToken().getOperator().equals("*"))
+			{	return evaluateTree(children.get(0))*evaluateTree(children.get(1));
+			}
+			else if (node.getToken().getOperator().equals("+"))
+			{	return evaluateTree(children.get(0))+evaluateTree(children.get(1));
+			}
+			else
+			{	System.out.println("Operator: \"" + node.getToken().getOperator() + "\" not recognised.");
+				System.exit(1);
+				//we won't execute this but we need a return statement... grr
+				return 0;
+			}
+		}
+	}
+
+	private int factorial(int x, int accum)
+	{	if (x < 0)
+		{	System.out.printf("Can't take factorial of: %d%n",x);
+			System.exit(1);
+			return 1;
+		}
+		else if (x == 0 || x == 1)
+		{	return accum;
+		}
+		else
+		{	return factorial(x-1,accum*x);
+		}
 	}
 }
 
