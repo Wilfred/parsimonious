@@ -267,6 +267,86 @@ class Node //simple immutable tree
 	}
 }
 
+class Table
+{	private final int[][] gotoTable = {	{3,4, 5},
+						{0,0, 6},
+						{0,0, 0},
+						{0,0, 0},
+						{0,0, 0},
+						{0,0, 0},
+						{0,0, 0},
+						{0,11,5},
+						{0,12,5},
+						{0,13,5},
+						{0,0, 0},
+						{0,0, 0},
+						{0,0, 0},
+						{0,0, 0} };
+
+	//0 error, 1 shift, 2 reduce, 3 accept
+	private final int[][] actionTable = {	{0,0,0,1,0,1,0},
+						{0,0,0,1,0,0,0},
+						{2,2,2,0,2,0,2},
+						{1,1,0,0,0,0,3},
+						{2,2,2,0,2,0,2},
+						{2,2,1,0,1,0,2},
+						{2,2,2,0,2,0,2},
+						{0,0,0,1,0,1,0},
+						{0,0,0,1,0,1,0},
+						{0,0,0,1,0,1,0},
+						{2,2,2,0,2,0,2},
+						{2,2,2,0,2,0,2},
+						{2,2,2,0,2,0,2},
+						{2,2,2,0,2,0,2} };
+
+	private final int[][] actionTableState = {	{0,0,0,1,0,1,0},
+							{0,0,0,1,0,0,0},
+							{2,2,2,0,2,0,2},
+							{1,1,0,0,0,0,3},
+							{2,2,2,0,2,0,2},
+							{2,2,1,0,1,0,2},
+							{2,2,2,0,2,0,2},
+							{0,0,0,1,0,1,0},
+							{0,0,0,1,0,1,0},
+							{0,0,0,1,0,1,0},
+							{2,2,2,0,2,0,2},
+							{2,2,2,0,2,0,2},
+							{2,2,2,0,2,0,2},
+							{2,2,2,0,2,0,2} };
+
+	private int getAction(int t, int state)
+	{	//dirty and hacky? you bet. array[x][y]
+		return actionTable[t][state];
+	}
+	public int getAction(Token t, int state)
+	{	int tokenSymbol;
+		if (!t.isOperator()) //token is num
+		{	tokenSymbol = 5;
+		}
+		else //token is an operator of some sort
+		{	if (t.getOperator().equals("-"))
+			{	tokenSymbol = 0;
+			}
+			else if (t.getOperator().equals("+"))
+			{	tokenSymbol = 1;
+			}
+			else if (t.getOperator().equals("*"))
+			{	tokenSymbol = 2;
+			}
+			else if (t.getOperator().equals("cos"))
+			{	tokenSymbol = 3;
+			}
+			else if (t.getOperator().equals("!"))
+			{	tokenSymbol = 4;
+			}
+			else if (t.getOperator().equals("end")) //eof marker, also hacky
+			{	tokenSymbol = 6;
+			}
+		}
+		return getAction(tokenSymbol, state);
+	}
+}
+
 /*
 new funky grammar:
 expr -> preop expr | expr postop | expr op expr | num
