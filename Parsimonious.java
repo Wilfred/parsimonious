@@ -9,7 +9,7 @@ import java.util.LinkedList;
  */
 
 // invalid syntax suggestions: "1.0.1" "sin" "css" "coos" "3**3" "2 co" "sin!"
-// test cases: "~1-~1" "3.3!"
+// test cases: "~1-~1" "3.3!" "1+2*3"
 
 public class Parsimonious
 {	public static void main(String[] args) throws java.io.IOException //declaring exception because code is cleaner and I think it's never thrown
@@ -43,6 +43,17 @@ public class Parsimonious
 		//parse
 		//Parser.parse(mathsArray);
 		//System.out.printf("Parsed result: "); printArray(mathsArray);
+
+		System.out.printf("Dummy tree: (1+2)!%n");
+		Node p = new Node(new Token(1));
+		Node q = new Node(new Token(2));
+		LinkedList<Node> kids = new LinkedList<Node>();
+		kids.add(p); kids.add(q);
+		Node r = new Node(new Token("+"),kids);
+		LinkedList<Node> kids2 = new LinkedList<Node>();
+		kids2.add(r);
+		Node s = new Node(new Token("!"),kids2);
+		System.out.printf("Evaluates to: %f%n",Parser.evaluateTree(s));
 	}
 
 	private static void printArray(Object[] input) //accepts strings or tokens
@@ -185,7 +196,7 @@ class Lexer
 }
 
 class Parser
-{	public float evaluateTree(Node node)
+{	public static float evaluateTree(Node node)
 	{	if (node.getChildren().size() == 0) //is leaf
 		{	return node.getToken().getNumber();
 		}
@@ -211,13 +222,13 @@ class Parser
 			else
 			{	System.out.println("Operator: \"" + node.getToken().getOperator() + "\" not recognised.");
 				System.exit(1);
-				//we won't execute this but we need a return statement... grr
+				//we won't execute this but we need a return statement... not stylish but easy
 				return 0;
 			}
 		}
 	}
 
-	private int factorial(int x, int accum)
+	private static int factorial(int x, int accum)
 	{	if (x < 0)
 		{	System.out.printf("Can't take factorial of: %d%n",x);
 			System.exit(1);
@@ -244,6 +255,7 @@ class Node //simple immutable tree
 	}
 	public Node(Token t)
 	{	value = t;
+		children = new LinkedList<Node>();
 	}
 	public Node(Token t, LinkedList<Node> kids)
 	{	value = t;
