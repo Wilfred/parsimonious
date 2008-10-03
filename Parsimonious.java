@@ -3,8 +3,8 @@ import java.util.LinkedList;
 
 /**
  * Parsimonious - a mathematical parser.
- * Known bugs: Will only process one line with each run. Does not do any maths. Does not validate grammar. No tree traversal.
- * Should use Exceptions rather than exiting. Does not yet accept ~ for negative numbers.
+ * Known bugs: Will only process one line with each run. Does not generate parse tree.
+ * Should use Exceptions rather than exiting.
  * @author Wilfred Hughes
  */
 
@@ -319,7 +319,7 @@ class Table
 		return actionTable[t][state];
 	}
 	public int getAction(Token t, int state)
-	{	int tokenSymbol;
+	{	int tokenSymbol = 0; //initialised to keep javac happy
 		if (!t.isOperator()) //token is num
 		{	tokenSymbol = 5;
 		}
