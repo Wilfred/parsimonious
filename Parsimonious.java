@@ -215,6 +215,24 @@ class Parser
 		//we also use two stacks as we want to hold tokens and states, so we can output tokens on reductions
 		Deque<Token> symbolStack = new ArrayDeque<Token>();
 		Deque<Integer> stateStack = new ArrayDeque<Integer>();
+		stateStack.push(0); //start state
+
+		while (true)
+		{	Token nextToken = input.peekFirst();
+			if (Table.getAction(nextToken, stateStack.peek()) == Table.ERROR)
+			{	System.out.printf("Invalid syntax found.%n");
+				System.exit(1);
+			}
+			else if (Table.getAction(nextToken, stateStack.peek()) == Table.SHIFT)
+			{	symbolStack.push(input.pop());
+			}
+			else if (Table.getAction(nextToken, stateStack.peek()) == Table.REDUCE)
+			{
+			}
+			else if (Table.getAction(nextToken, stateStack.peek()) == Table.ACCEPT)
+			{	break; //we're done!
+			}
+		}
 
 		Node parseTree = new Node(new Token(0));
 		return parseTree;
@@ -297,7 +315,7 @@ class Table
 	public static final int REDUCE = 2;
 	public static final int ACCEPT = 3;
 
-	private final int[][] gotoTable = {	{3,4, 5},
+	private static final int[][] gotoTable = {	{3,4, 5},
 						{0,0, 6},
 						{0,0, 0},
 						{0,0, 0},
@@ -313,7 +331,7 @@ class Table
 						{0,0, 0} };
 
 	//0 error, 1 shift, 2 reduce, 3 accept
-	private final int[][] actionTable = {	{0,0,0,1,0,1,0},
+	private static final int[][] actionTable = {	{0,0,0,1,0,1,0},
 						{0,0,0,1,0,0,0},
 						{2,2,2,0,2,0,2},
 						{1,1,0,0,0,0,3},
@@ -328,7 +346,7 @@ class Table
 						{2,2,2,0,2,0,2},
 						{2,2,2,0,2,0,2} };
 
-	private final int[][] actionTableState = {	{0,0,0,1,0,1,0},
+	private static final int[][] actionTableState = {	{0,0,0,1,0,1,0},
 							{0,0,0,1,0,0,0},
 							{2,2,2,0,2,0,2},
 							{1,1,0,0,0,0,3},
@@ -343,11 +361,11 @@ class Table
 							{2,2,2,0,2,0,2},
 							{2,2,2,0,2,0,2} };
 
-	private int getAction(int t, int state)
+	private static int getAction(int t, int state)
 	{	//dirty and hacky? you bet. array[x][y]
 		return actionTable[t][state];
 	}
-	public int getAction(Token t, int state)
+	public static int getAction(Token t, int state)
 	{	int tokenSymbol = 0; //initialised to keep javac happy
 		if (!t.isOperator()) //token is num
 		{	tokenSymbol = 5;
