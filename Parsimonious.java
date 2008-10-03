@@ -268,7 +268,12 @@ class Node //simple immutable tree
 }
 
 class Table
-{	private final int[][] gotoTable = {	{3,4, 5},
+{	public static final int ERROR = 0;
+	public static final int SHIFT = 1;
+	public static final int REDUCE = 2;
+	public static final int ACCEPT = 3;
+
+	private final int[][] gotoTable = {	{3,4, 5},
 						{0,0, 6},
 						{0,0, 0},
 						{0,0, 0},
@@ -348,31 +353,17 @@ class Table
 }
 
 /*
-new funky grammar:
-expr -> preop expr | expr postop | expr op expr | num
-preop -> cos
-postop -> !
-op -> * | + | -
+augmented grammar, honouring precedence and associativity:
+A' -> A
+A -> A - B
+A -> A + B
+A -> B
+B -> C * B
+B -> C
+C -> cos C
+C -> C!
+C -> num
 
-shorter still:
-
-
-simplified grammar, showing precedence:
-expr -> cos expr
-expr -> expr !
-expr -> expr * expr
-expr -> expr + expr
-expr -> expr - expr
-expr -> real
-real -> the set of real numbers
-
-full grammar:
-expr -> cos expr
-expr -> expr !
-expr -> expr * expr
-expr -> expr + expr
-expr -> expr - expr
-expr -> digits.digits
-digits -> digits digit | digit
-digit -> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+nonterminals: A' A B C
+terminals: - + * cos ! num
 */
