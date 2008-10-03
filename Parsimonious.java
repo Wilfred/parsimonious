@@ -1,5 +1,7 @@
 import java.io.InputStreamReader;
 import java.util.LinkedList;
+import java.util.Deque;
+import java.util.ArrayDeque;
 
 /**
  * Parsimonious - a mathematical parser.
@@ -38,11 +40,16 @@ public class Parsimonious
 		Token[] mathsArray = Lexer.tokenise(tokenArray);
 		System.out.printf("OK%n");
 		System.out.printf("Current Token array: "); printArray(mathsArray);
-		
-		//validate grammar
-		//parse
-		//Parser.parse(mathsArray);
-		//System.out.printf("Parsed result: "); printArray(mathsArray);
+
+		System.out.printf("Generating parse tree...");
+		Node parseTree = Parser.generateTree(mathsArray);
+		System.out.printf("OK%n");
+
+		System.out.printf("Evaluating tree...");
+		float result = Parser.evaluateTree(parseTree);
+		System.out.printf("OK%n");
+
+		System.out.printf("Final result: %f%n",result);
 
 		System.out.printf("Dummy tree: (1+2)!%n");
 		Node p = new Node(new Token(1));
@@ -196,7 +203,24 @@ class Lexer
 }
 
 class Parser
-{	public static float evaluateTree(Node node)
+{	public static Node generateTree(Token[] originalInput)
+	{	//a linkedList is easier to work with IMO, although it's refusing to convert directly from the array
+		LinkedList<Token> input = new LinkedList<Token>();
+		for (int i=0; i<originalInput.length; i++)
+		{	input.add(originalInput[i]);
+		}
+		input.addLast(new Token("end")); //eof marker
+
+		//supposed to use a stack--Java prefers using a deque
+		//we also use two stacks as we want to hold tokens and states, so we can output tokens on reductions
+		Deque<Token> symbolStack = new ArrayDeque<Token>();
+		Deque<Integer> stateStack = new ArrayDeque<Integer>();
+
+		Node parseTree = new Node(new Token(0));
+		return parseTree;
+	}
+
+	public static float evaluateTree(Node node)
 	{	if (node.getChildren().size() == 0) //is leaf
 		{	return node.getToken().getNumber();
 		}
