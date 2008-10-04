@@ -10,8 +10,8 @@ import java.util.ArrayDeque;
  * @author Wilfred Hughes
  */
 
-// invalid syntax suggestions: "1.0.1" "sin" "css" "coos" "3**3" "2 co" "sin!"
-// test cases: "~1-~1" "3.3!" "1+2*3"
+// invalid syntax suggestions: "1.0.1" "sin" "css" "coos" "3**3" "2 co" "sin!" "cos !"
+// test cases: "3!" "cos 3!" "~1-~1" "3.3!" "1+2*3"
 
 public class Parsimonious
 {	public static void main(String[] args) throws java.io.IOException //declaring exception because code is cleaner and I think it's never thrown
@@ -203,7 +203,14 @@ class Lexer
 }
 
 class Parser
-{	public static Node generateTree(Token[] originalInput)
+{	private static void printStack(Deque<Integer> s)
+	{	Object[] printMe = s.toArray();
+		for (int i=0; i<printMe.length; i++)
+		{	System.out.printf("%s ", printMe[i]);
+		}
+	}
+
+	public static Node generateTree(Token[] originalInput)
 	{	//a linkedList is easier to work with IMO, although it's refusing to convert directly from the array
 		LinkedList<Token> input = new LinkedList<Token>();
 		for (int i=0; i<originalInput.length; i++)
@@ -217,21 +224,105 @@ class Parser
 		Deque<Integer> stateStack = new ArrayDeque<Integer>();
 		stateStack.push(0); //start state
 
+		//we also need a stack to hold the pieces of our parse tree
+		Deque<Token> outputStack = new ArrayDeque<Token>();
+
+		int i = 1;
+
 		while (true)
 		{	Token nextToken = input.peekFirst();
+
+			System.out.printf("%n%nLoop %d.%nnextToken is: %s and reversed current state is ",i,nextToken.toString());
+			printStack(stateStack); System.out.printf("%n");
+
 			if (Table.getAction(nextToken, stateStack.peek()) == Table.ERROR)
 			{	System.out.printf("Invalid syntax found.%n");
 				System.exit(1);
 			}
 			else if (Table.getAction(nextToken, stateStack.peek()) == Table.SHIFT)
 			{	symbolStack.push(input.pop());
+				stateStack.push(Table.getStateAfterShift(nextToken,stateStack.peek()));
 			}
 			else if (Table.getAction(nextToken, stateStack.peek()) == Table.REDUCE)
-			{
+			{	//work out which production and act accordingly, popping the appropriate number of states
+				int reductionRule = Table.getReduction(nextToken, stateStack.peek());
+				System.out.printf("Reducing according to rule %d.%n",reductionRule);
+				switch (reductionRule)
+				{	case 1: 
+						// A -> A - B
+						stateStack.pop();
+						stateStack.pop();
+						stateStack.pop();
+						//output - to tree
+						break;
+					case 2:
+						// A -> A + B
+						stateStack.pop();
+						stateStack.pop();
+						stateStack.pop();
+						//output + to tree
+						break;
+					case 3:
+						// A -> B
+						stateStack.pop();
+						break;
+					case 4:
+						// B -> C * B
+						stateStack.pop();
+						stateStack.pop();
+						stateStack.pop();
+						//output * to tree
+						break;
+					case 5:
+						// B -> C
+						stateStack.pop();
+						break;
+					case 6:
+						// C -> cos C
+						stateStack.pop();
+						stateStack.pop();
+						//output cos to tree
+						break;
+					case 7:
+						// C -> C!
+						stateStack.pop();
+						stateStack.pop();
+						//output ! to tree
+						break;
+					case 8:
+						// C -> num
+						stateStack.pop();
+						//output this number to the tree
+						break;
+					default:
+						System.out.printf("Error, could not find correct reduction.%n");
+						break;
+				}
+				//possibly output something into tree stack, or assemble tree
+
+				//ok, so a goto always follows a reduction
+				//we examine the reduction rule to see what symbol we have reduced to,
+				//so we can inspect the goto table and update the state
+				if (reductionRule == 1 || reductionRule == 2 || reductionRule == 3)
+				{	//we have reduced to A
+					System.out.printf("Our getGotoState is %d%n",Table.getGotoState(0,stateStack.peek()));
+					stateStack.push(Table.getGotoState(0,stateStack.peek()));
+				}
+				else if (reductionRule == 4 || reductionRule == 5)
+				{	//we have reduced to B
+					stateStack.push(Table.getGotoState(1,stateStack.peek()));
+				}
+				else if (reductionRule == 6 || reductionRule == 7 || reductionRule == 8)
+				{	//we have reduced to C
+					stateStack.push(Table.getGotoState(2,stateStack.peek()));
+				}
 			}
 			else if (Table.getAction(nextToken, stateStack.peek()) == Table.ACCEPT)
-			{	break; //we're done!
+			{	break; //we're done! woohoo!
 			}
+		System.out.printf("At the end of this loop, nextToken: %s and reversed state stack: ",nextToken.toString());
+		printStack(stateStack); System.out.printf("%n");
+		i++;
 		}
 
 		Node parseTree = new Node(new Token(0));
@@ -316,38 +407,23 @@ class Table
 	public static final int ACCEPT = 3;
 
 	private static final int[][] gotoTable = {	{3,4, 5},
-						{0,0, 6},
-						{0,0, 0},
-						{0,0, 0},
-						{0,0, 0},
-						{0,0, 0},
-						{0,0, 0},
-						{0,11,5},
-						{0,12,5},
-						{0,13,5},
-						{0,0, 0},
-						{0,0, 0},
-						{0,0, 0},
-						{0,0, 0} };
+							{0,0, 6},
+							{0,0, 0},
+							{0,0, 0},
+							{0,0, 0},
+							{0,0, 0},
+							{0,0, 0},
+							{0,11,5},
+							{0,12,5},
+							{0,13,5},
+							{0,0, 0},
+							{0,0, 0},
+							{0,0, 0},
+							{0,0, 0} };
 
 	//0 error, 1 shift, 2 reduce, 3 accept
 	private static final int[][] actionTable = {	{0,0,0,1,0,1,0},
-						{0,0,0,1,0,0,0},
-						{2,2,2,0,2,0,2},
-						{1,1,0,0,0,0,3},
-						{2,2,2,0,2,0,2},
-						{2,2,1,0,1,0,2},
-						{2,2,2,0,2,0,2},
-						{0,0,0,1,0,1,0},
-						{0,0,0,1,0,1,0},
-						{0,0,0,1,0,1,0},
-						{2,2,2,0,2,0,2},
-						{2,2,2,0,2,0,2},
-						{2,2,2,0,2,0,2},
-						{2,2,2,0,2,0,2} };
-
-	private static final int[][] actionTableState = {	{0,0,0,1,0,1,0},
-							{0,0,0,1,0,0,0},
+							{0,0,0,1,0,1,0},
 							{2,2,2,0,2,0,2},
 							{1,1,0,0,0,0,3},
 							{2,2,2,0,2,0,2},
@@ -361,11 +437,43 @@ class Table
 							{2,2,2,0,2,0,2},
 							{2,2,2,0,2,0,2} };
 
-	private static int getAction(int t, int state)
-	{	//dirty and hacky? you bet. array[x][y]
-		return actionTable[t][state];
-	}
+	//where to go after shift
+	private static final int[][] stateAfterShift = {	{0,0,0,1 ,0,2,0},
+								{0,0,0,1 ,0,2,0},
+								{0,0,0,0 ,0,0,0},
+								{0,0,0,0 ,0,0,0},
+								{0,0,0,0 ,0,0,0},
+								{0,0,9,0,10,0,0},
+								{0,0,0,0 ,0,0,0},
+								{0,0,0,1 ,0,2,0},
+								{0,0,0,1 ,0,2,0},
+								{0,0,0,1 ,0,2,0},
+								{0,0,0,0 ,0,0,0},
+								{0,0,0,0 ,0,0,0},
+								{0,0,0,0 ,0,0,0},
+								{0,0,0,0 ,0,0,0} };
+
+	private static final int[][] reduceByProduction = {	{0,0,0,0,0 ,0,0},
+								{0,0,0,0,0 ,0,0},
+								{8,8,8,0,8 ,0,8},
+								{7,8,0,0,0 ,0,0},
+								{3,3,3,0,3 ,0,3},
+								{5,5,0,0,0,0,5},
+								{6,6,6,0,6 ,0,6},
+								{0,0,0,0,0 ,0,0},
+								{0,0,0,0,0 ,0,0},
+								{0,0,0,0,0 ,0,0},
+								{7,7,7,0,7 ,0,7},
+								{1,1,1,0,1 ,0,1},
+								{2,2,2,0,2 ,0,2},
+								{4,4,4,0,4 ,0,4} };
+
 	public static int getAction(Token t, int state)
+	{	//dirty and hacky? you bet. array[y][x]
+		System.out.printf("getAction received Token %s which is number %d and returned action %d.%n",t.toString(),tokenNumber(t),actionTable[state][tokenNumber(t)]);
+		return actionTable[state][tokenNumber(t)];
+	}
+	private static int tokenNumber(Token t)
 	{	int tokenSymbol = 0; //initialised to keep javac happy
 		if (!t.isOperator()) //token is num
 		{	tokenSymbol = 5;
@@ -390,7 +498,30 @@ class Table
 			{	tokenSymbol = 6;
 			}
 		}
-		return getAction(tokenSymbol, state);
+		return tokenSymbol;
+	}
+
+	public static int getStateAfterShift(Token t, int state)
+	{	int newState = stateAfterShift[state][tokenNumber(t)];
+		System.out.printf("getStateAfterShift: Token was %s (or %d), state was %d. Resulting state was %d.%n",t.toString(),tokenNumber(t),state,newState);
+		return newState;
+	}
+
+	public static int getReduction(Token t, int state)
+	{	int reduction = reduceByProduction[state][tokenNumber(t)];
+		System.out.printf("getReduction with token %s and state %d gives reduction %d.%n",t.toString(),state,reduction);
+		if (reduction == 0)
+		{	System.out.printf("Something went wrong. Erroneous reduction.%n");
+		}
+		return reduction;
+	}
+
+	public static int getGotoState(int symbol, int state)
+	{	int newState = gotoTable[state][symbol];
+		if (newState == 0)
+		{	System.out.printf("Invalid goto requested.%n");
+		}
+		return newState;
 	}
 }
 
