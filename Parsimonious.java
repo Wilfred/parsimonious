@@ -15,7 +15,7 @@ import java.util.ArrayDeque;
 
 public class Parsimonious
 {	public static void main(String[] args) throws java.io.IOException //declaring exception because code is cleaner and I think it's never thrown
-	{	System.out.printf("Operators accepted: cos ! * + - (descending priority, cos in degrees, ! rounds to integers)%n");
+	{	System.out.printf("Operators accepted: ! cos * + - (descending priority, cos in degrees, ! rounds to integers)%n");
 		System.out.printf("Signed floating point numbers are accepted in the forms 0, 0.0 or .0 (negative numbers must use ~) %n");
 		System.out.printf("Type a mathematical expression and hit enter. All whitespace will be ignored.%n");
 
