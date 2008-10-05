@@ -401,6 +401,7 @@ class Table
 	public static final int REDUCE = 2;
 	public static final int ACCEPT = 3;
 
+	//where to go to after a reduction
 	private static final int[][] gotoTable = {	{3,4, 5},
 							{0,0, 6},
 							{0,0, 0},
@@ -433,21 +434,22 @@ class Table
 							{2,2,2,0,2,0,2} };
 
 	//where to go after shift
-	private static final int[][] stateAfterShift = {	{0,0,0,1 ,0,2,0},
-								{0,0,0,1 ,0,2,0},
-								{0,0,0,0 ,0,0,0},
-								{7,8,0,0 ,0,0,0},
-								{0,0,0,0 ,0,0,0},
+	private static final int[][] stateAfterShift = {	{0,0,0,1,0, 2,0},
+								{0,0,0,1,0, 2,0},
+								{0,0,0,0,0, 0,0},
+								{7,8,0,0,0, 0,0},
+								{0,0,0,0,0, 0,0},
 								{0,0,9,0,10,0,0},
-								{0,0,0,0 ,0,0,0},
-								{0,0,0,1 ,0,2,0},
-								{0,0,0,1 ,0,2,0},
-								{0,0,0,1 ,0,2,0},
-								{0,0,0,0 ,0,0,0},
-								{0,0,0,0 ,0,0,0},
-								{0,0,0,0 ,0,0,0},
-								{0,0,0,0 ,0,0,0} };
+								{0,0,0,0,0, 0,0},
+								{0,0,0,1,0, 2,0},
+								{0,0,0,1,0, 2,0},
+								{0,0,0,1,0, 2,0},
+								{0,0,0,0,0, 0,0},
+								{0,0,0,0,0, 0,0},
+								{0,0,0,0,0, 0,0},
+								{0,0,0,0,0, 0,0} };
 
+	//once we know we're doing a reduction, which one we're doing
 	private static final int[][] reduceByProduction = {	{0,0,0,0,0,0,0},
 								{0,0,0,0,0,0,0},
 								{8,8,8,0,8,0,8},
