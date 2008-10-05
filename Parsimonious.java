@@ -4,7 +4,7 @@ import java.util.Deque;
 import java.util.ArrayDeque;
 
 /**
- * Parsimonious - a mathematical parser.
+ * Parsimonious: a mathematical lexer and parser.
  * Known bugs: Will only process one line with each run.
  * Should use Exceptions rather than exiting.
  * @author Wilfred Hughes
@@ -28,51 +28,21 @@ public class Parsimonious
 			a = input.read();
 		}
 
+		//removing whitespace will concatenate adjacent numbers (1 + 2 2 == 1+22)
 		String strippedInput = Lexer.removeWhitespace(inputString);
-		//System.out.printf("Stripping whitespace: %s%n",strippedInput);
 
-		//System.out.printf("Separating String into tokens and validating operators...");
+		//Separate String into tokens and validate operators
 		String[] tokenArray = Lexer.separateTokens(strippedInput);
-		//System.out.printf("OK%n");
-		//System.out.printf("Current String array: "); printArray(tokenArray);
 
-		//System.out.printf("Validating numbers and tokenising...");
+		//validate numbers and tokenise
 		Token[] mathsArray = Lexer.tokenise(tokenArray);
-		//System.out.printf("OK%n");
-		//System.out.printf("Current Token array: "); printArray(mathsArray);
 
-		//System.out.printf("Generating parse tree...");
+		//generate parse tree using LR(0) algorithm. This is the exciting bit.
 		Node parseTree = Parser.generateTree(mathsArray);
-		//System.out.printf("OK%n");
 
-		//System.out.printf("Evaluating tree...");
+		//bottom up traversal of tree to calculate value
 		float result = Parser.evaluateTree(parseTree);
-		//System.out.printf("OK%n");
-
-		//System.out.printf("Tree has %d node(s).%n",countNodes(parseTree));
-
 		System.out.printf("Result: %f%n",result);
-	}
-
-	private static void printArray(Object[] input) //accepts strings or tokens
-	{	for (int i=0; i<input.length; i++)
-		{	System.out.printf("%s ",input[i]);
-		}
-		System.out.printf("%n");
-	}
-
-	private static int countNodes(Node root)
-	{	LinkedList<Node> children = root.getChildren();
-		if (children.size() == 0)
-		{	return 1;
-		}
-		else
-		{	int total = 1;
-			for (int i=0; i<children.size(); i++)
-			{	total += countNodes(children.get(i));
-			}
-			return total;
-		}
 	}
 }
 
@@ -176,7 +146,7 @@ class Lexer
 		return returnme;
 	}
 
-	//inefficient but quick and dirty
+	//inefficient but quick and dirty--I assume all inputs will be of negligible size
 	private static String[] extendArray(String[] input, String element)
 	{	String[] returnme = new String[input.length+1];
 		for (int i=0; i<returnme.length-1; i++)
@@ -208,14 +178,7 @@ class Lexer
 }
 
 class Parser
-{	private static void printStack(Deque<Integer> s)
-	{	Object[] printMe = s.toArray();
-		for (int i=0; i<printMe.length; i++)
-		{	System.out.printf("%s ", printMe[i]);
-		}
-	}
-
-	public static Node generateTree(Token[] originalInput)
+{	public static Node generateTree(Token[] originalInput)
 	{	//a linkedList is easier to work with IMO, although it's refusing to convert directly from the array
 		LinkedList<Token> input = new LinkedList<Token>();
 		for (int i=0; i<originalInput.length; i++)
@@ -232,13 +195,8 @@ class Parser
 		//we also need a stack to hold the pieces of our parse tree
 		Deque<Node> outputStack = new ArrayDeque<Node>();
 
-		//int i = 1;
-
 		while (true)
 		{	Token nextToken = input.peekFirst();
-
-			//System.out.printf("%n%nLoop %d.%nnextToken is: %s and reversed current state is ",i,nextToken.toString());
-			//printStack(stateStack); System.out.printf("%n");
 
 			if (Table.getAction(nextToken, stateStack.peek()) == Table.ERROR)
 			{	System.out.printf("Invalid syntax found.%n");
@@ -250,8 +208,8 @@ class Parser
 			}
 			else if (Table.getAction(nextToken, stateStack.peek()) == Table.REDUCE)
 			{	//work out which production and act accordingly, popping the appropriate number of states
+				//if appropriate, update the outputStack
 				int reductionRule = Table.getReduction(nextToken, stateStack.peek());
-				//System.out.printf("Reducing according to rule %d.%n",reductionRule);
 				switch (reductionRule)
 				{	case 1:
 						// A -> A - B
@@ -265,7 +223,6 @@ class Parser
 						children1.add(child11); children1.add(child12);
 						Node newNode1 = new Node(new Token("-"),children1);
 						outputStack.push(newNode1);
-						//System.out.printf("Popped %s and %s, pushed %s to outputStack.%n",child11,child12,newNode1);
 						break;
 					case 2:
 						// A -> A + B
@@ -279,7 +236,6 @@ class Parser
 						children2.add(child21); children2.add(child22);
 						Node newNode2 = new Node(new Token("+"),children2);
 						outputStack.push(newNode2);
-						//System.out.printf("Popped %s and %s, pushed %s to outputStack.%n",child21,child22,newNode2);
 						break;
 					case 3:
 						// A -> B
@@ -297,7 +253,6 @@ class Parser
 						children4.add(child41); children4.add(child42);
 						Node newNode4 = new Node(new Token("*"),children4);
 						outputStack.push(newNode4);
-						//System.out.printf("Popped %s and %s, pushed %s to outputStack.%n",child41,child42,newNode4);
 						break;
 					case 5:
 						// B -> C
@@ -327,20 +282,17 @@ class Parser
 						//output this number to the tree
 						Node newNode8 = new Node(symbolStack.pop());
 						outputStack.push(newNode8);
-						//System.out.printf("Pushing node %s to outputStack.%n",newNode8);
 						break;
 					default:
 						System.out.printf("Error, could not find correct reduction.%n");
 						break;
 				}
-				//possibly output something into tree stack, or assemble tree
 
 				//ok, so a goto always follows a reduction
 				//we examine the reduction rule to see what symbol we have reduced to,
 				//so we can inspect the goto table and update the state
 				if (reductionRule == 1 || reductionRule == 2 || reductionRule == 3)
 				{	//we have reduced to A
-					//System.out.printf("Our getGotoState is %d%n",Table.getGotoState(0,stateStack.peek()));
 					stateStack.push(Table.getGotoState(0,stateStack.peek()));
 				}
 				else if (reductionRule == 4 || reductionRule == 5)
@@ -355,11 +307,9 @@ class Parser
 			else if (Table.getAction(nextToken, stateStack.peek()) == Table.ACCEPT)
 			{	break; //we're done! woohoo!
 			}
-		//System.out.printf("At the end of this loop, nextToken: %s and reversed state stack: ",nextToken.toString());
-		//printStack(stateStack); System.out.printf("%n");
-		//i++;
 		}
 
+		//our final assembled tree is at the head of the outputStack
 		Node parseTree = outputStack.pop();
 		return parseTree;
 	}
@@ -369,8 +319,7 @@ class Parser
 		{	return node.getToken().getNumber();
 		}
 		else
-		{	//would use switch statement but its too messy with variable # of children
-			LinkedList<Node> children = node.getChildren();
+		{	LinkedList<Node> children = node.getChildren();
 			if (!node.getToken().isOperator()) //entire tree is just a number
 			{	return node.getToken().getNumber();
 			}
@@ -396,6 +345,8 @@ class Parser
 		}
 	}
 
+	//factorial implementation that is iterative, just in case we face big numbers
+	//would java have optimised it anyway?
 	private static int factorial(int x, int accum)
 	{	if (x < 0)
 		{	System.out.printf("Can't take factorial of: %d%n",x);
@@ -412,7 +363,7 @@ class Parser
 }
 
 class Node //simple immutable tree
-{	private LinkedList<Node> children; //children
+{	private LinkedList<Node> children;
 	private Token value;
 
 	public LinkedList<Node> getChildren()
@@ -513,47 +464,44 @@ class Table
 								{4,4,4,0,4,0,4} };
 
 	public static int getAction(Token t, int state)
-	{	//dirty and hacky? you bet. array[y][x]
-		//System.out.printf("getAction received Token %s which is number %d and returned action %d.%n",t.toString(),tokenNumber(t),actionTable[state][tokenNumber(t)]);
+	{	//array[y][x] obviously(!)
 		return actionTable[state][tokenNumber(t)];
 	}
 	private static int tokenNumber(Token t)
-	{	int tokenSymbol = 0; //initialised to keep javac happy
+	{	int symbolNumber = 0; //initialised to keep javac happy
 		if (!t.isOperator()) //token is num
-		{	tokenSymbol = 5;
+		{	symbolNumber = 5;
 		}
 		else //token is an operator of some sort
 		{	if (t.getOperator().equals("-"))
-			{	tokenSymbol = 0;
+			{	symbolNumber = 0;
 			}
 			else if (t.getOperator().equals("+"))
-			{	tokenSymbol = 1;
+			{	symbolNumber = 1;
 			}
 			else if (t.getOperator().equals("*"))
-			{	tokenSymbol = 2;
+			{	symbolNumber = 2;
 			}
 			else if (t.getOperator().equals("cos"))
-			{	tokenSymbol = 3;
+			{	symbolNumber = 3;
 			}
 			else if (t.getOperator().equals("!"))
-			{	tokenSymbol = 4;
+			{	symbolNumber = 4;
 			}
-			else if (t.getOperator().equals("end")) //eof marker, also hacky
-			{	tokenSymbol = 6;
+			else if (t.getOperator().equals("end")) //eof marker, slightly hacky
+			{	symbolNumber = 6;
 			}
 		}
-		return tokenSymbol;
+		return symbolNumber;
 	}
 
 	public static int getStateAfterShift(Token t, int state)
 	{	int newState = stateAfterShift[state][tokenNumber(t)];
-		//System.out.printf("getStateAfterShift: Token was %s (or %d), state was %d. Resulting state was %d.%n",t.toString(),tokenNumber(t),state,newState);
 		return newState;
 	}
 
 	public static int getReduction(Token t, int state)
 	{	int reduction = reduceByProduction[state][tokenNumber(t)];
-		//System.out.printf("getReduction with token %s and state %d gives reduction %d.%n",t.toString(),state,reduction);
 		if (reduction == 0)
 		{	System.out.printf("Something went wrong. Erroneous reduction.%n");
 		}
