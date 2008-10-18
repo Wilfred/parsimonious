@@ -11,7 +11,7 @@ import java.util.ArrayDeque;
  */
 
 // invalid syntax suggestions: "1.0.1" "sin" "css" "coos" "3**3" "2 co" "sin!" "cos !"
-// test cases: "3!" "cos 3!" "~1-~1" "3.3!" "1+2*3"
+// test cases: "3!" "cos 3!" "~1-~1" "3.3!" "1+2*3" "10-2"
 
 public class Parsimonious
 {	public static void main(String[] args) throws java.io.IOException //declaring exception because code is cleaner and I think it's never thrown
@@ -335,6 +335,9 @@ class Parser
 			}
 			else if (node.getToken().getOperator().equals("+"))
 			{	return evaluateTree(children.get(0))+evaluateTree(children.get(1));
+			}
+			else if (node.getToken().getOperator().equals("-"))
+			{	return evaluateTree(children.get(0))-evaluateTree(children.get(1));
 			}
 			else
 			{	System.out.println("Operator: \"" + node.getToken().getOperator() + "\" not recognised.");
