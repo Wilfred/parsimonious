@@ -5,8 +5,8 @@ import java.util.ArrayDeque;
 
 /**
  * Parsimonious: a mathematical lexer and parser.
- * Known bugs: Will only process one line with each run.
- * Should use Exceptions rather than exiting.
+ * Known bugs: Should use Exceptions rather than exiting.
+ * Does not quit.
  * @author Wilfred Hughes
  */
 
@@ -15,34 +15,36 @@ import java.util.ArrayDeque;
 
 public class Parsimonious
 {	public static void main(String[] args) throws java.io.IOException //declaring exception because code is cleaner and I think it's never thrown
-	{	System.out.printf("Operators accepted: cos ! * + - (descending priority, cos in radians, ! rounds to integers)%n");
-		System.out.printf("Signed floating point numbers are accepted in the forms 0, 0.0 or .0 (negative numbers must use ~) %n");
-		System.out.printf("Type a mathematical expression and hit enter. All whitespace will be ignored.%n");
+	{	while (true)
+		{	System.out.printf("Operators accepted: cos ! * + - (descending priority, cos in radians, ! rounds to integers)%n");
+			System.out.printf("Signed floating point numbers are accepted in the forms 0, 0.0 or .0 (negative numbers must use ~) %n");
+			System.out.printf("Type a mathematical expression and hit enter. All whitespace will be ignored.%n");
 
-		InputStreamReader input = new InputStreamReader(System.in);
-		String inputString = "";
-		int a = input.read();
-		//put input in string
-		while (a != -1 && a != 10) //-1 is end of stream, 10 is character return
-		{	inputString = inputString + (char)a;
-			a = input.read();
+			InputStreamReader input = new InputStreamReader(System.in);
+			String inputString = "";
+			int a = input.read();
+			//put input in string
+			while (a != -1 && a != 10) //-1 is end of stream, 10 is character return
+			{	inputString = inputString + (char)a;
+				a = input.read();
+			}
+
+			//removing whitespace will concatenate adjacent numbers (1 + 2 2 == 1+22)
+			String strippedInput = Lexer.removeWhitespace(inputString);
+
+			//Separate String into tokens and validate operators
+			String[] tokenArray = Lexer.separateTokens(strippedInput);
+
+			//validate numbers and tokenise
+			Token[] mathsArray = Lexer.tokenise(tokenArray);
+
+			//generate parse tree using LR(0) algorithm. This is the exciting bit.
+			Node parseTree = Parser.generateTree(mathsArray);
+
+			//bottom up traversal of tree to calculate value
+			float result = Parser.evaluateTree(parseTree);
+			System.out.printf("Result: %f%n",result);
 		}
-
-		//removing whitespace will concatenate adjacent numbers (1 + 2 2 == 1+22)
-		String strippedInput = Lexer.removeWhitespace(inputString);
-
-		//Separate String into tokens and validate operators
-		String[] tokenArray = Lexer.separateTokens(strippedInput);
-
-		//validate numbers and tokenise
-		Token[] mathsArray = Lexer.tokenise(tokenArray);
-
-		//generate parse tree using LR(0) algorithm. This is the exciting bit.
-		Node parseTree = Parser.generateTree(mathsArray);
-
-		//bottom up traversal of tree to calculate value
-		float result = Parser.evaluateTree(parseTree);
-		System.out.printf("Result: %f%n",result);
 	}
 }
 
