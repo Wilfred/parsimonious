@@ -15,7 +15,7 @@
 // invalid syntax suggestions: "1.0.1" "sin" "css" "coos" "3**3" "2 co" "sin!" "cos !"
 // test cases: "3!" "cos 3!" "~1-~1" "3.3!" "1+2*3" "10-2"
 
-import java.io.InputStreamReader;
+import java.io.Console;
 import java.util.LinkedList;
 import java.util.Stack;
 import java.util.regex.Pattern;
@@ -30,29 +30,22 @@ import java.util.regex.Matcher;
 
 public class Parsimonious
 {	public static void main(String[] args) throws java.io.IOException //declaring exception because code is cleaner and I think it's never thrown
-	{	while (true)
-		{	System.out.printf("Operators accepted: cos ! * + - (descending priority, cos in radians, ! rounds to integers)%n");
-			System.out.printf("Signed floating point numbers are accepted in the forms 0 or 0.0 (negative numbers must use ~) %n");
-			System.out.printf("Type a mathematical expression and hit enter. All whitespace will be ignored.%n");
+	{	Console console = System.console();
+		console.format("Operators accepted: cos ! * + - (descending priority, cos in radians, ! rounds to integers)\n");
+		console.format("Signed floating point numbers are accepted in the forms 0 or 0.0 (negative numbers must use ~)\n");
+		while (true)
+		{	console.format("Type a mathematical expression and hit enter. All whitespace will be ignored.%n");
 
-			InputStreamReader input = new InputStreamReader(System.in);
-			String inputString = "";
-			int a = input.read();
-			//put input in string
-			while (a != -1 && a != 10) //-1 is end of stream, 10 is character return
-			{	inputString = inputString + (char)a;
-				a = input.read();
-			}
-
+			String inputString = console.readLine();
 			//lex according to regex
-			LinkedList<Token> mathsArray = Lexer.lex(inputString);
+			LinkedList<Token> tokens = Lexer.lex(inputString);
 
 			//generate parse tree using LR(0) algorithm. This is the exciting bit.
-			Node parseTree = Parser.generateTree(mathsArray);
+			Node parseTree = Parser.generateTree(tokens);
 
 			//bottom up traversal of tree to calculate value
 			float result = Parser.evaluateTree(parseTree);
-			System.out.printf("Result: %f%n",result);
+			console.format("%f\n",result);
 		}
 	}
 }
