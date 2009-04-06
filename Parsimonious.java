@@ -1,3 +1,20 @@
+/*     This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+// invalid syntax suggestions: "1.0.1" "sin" "css" "coos" "3**3" "2 co" "sin!" "cos !"
+// test cases: "3!" "cos 3!" "~1-~1" "3.3!" "1+2*3" "10-2"
+
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.Deque;
@@ -11,9 +28,6 @@ import java.util.regex.Matcher;
  * Does not quit.
  * @author Wilfred Hughes
  */
-
-// invalid syntax suggestions: "1.0.1" "sin" "css" "coos" "3**3" "2 co" "sin!" "cos !"
-// test cases: "3!" "cos 3!" "~1-~1" "3.3!" "1+2*3" "10-2"
 
 public class Parsimonious
 {	public static void main(String[] args) throws java.io.IOException //declaring exception because code is cleaner and I think it's never thrown
