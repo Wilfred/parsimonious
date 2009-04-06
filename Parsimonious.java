@@ -1,4 +1,4 @@
-/*     This program is free software: you can redistribute it and/or modify
+/*  This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
@@ -46,7 +46,7 @@ public class Parsimonious
 			}
 
 			//lex according to regex
-			Token[] mathsArray = Lexer.lex(inputString);
+			LinkedList<Token> mathsArray = Lexer.lex(inputString);
 
 			//generate parse tree using LR(0) algorithm. This is the exciting bit.
 			Node parseTree = Parser.generateTree(mathsArray);
@@ -94,34 +94,25 @@ class Token
 }
 
 class Lexer
-{	public static Token[] lex(String s)
+{	public static LinkedList<Token> lex(String s)
 	{	//match any of: - + * cos ! or a number
 		Pattern validTokens = Pattern.compile("-|\\+|\\*|cos|!|~?[0-9]+(\\.[0-9]+)?");
 		Matcher matcher = validTokens.matcher(s);
-		String[] tokens = new String[0];
+		LinkedList<String> tokenStrings = new LinkedList<String>();
 		while(matcher.find())
-		{	tokens = extendArray(tokens, matcher.group());
+		{	tokenStrings.add(matcher.group());
 		}
-		return tokenise(tokens);
+		return tokenise(tokenStrings);
 	}
 
-	//inefficient but quick and dirty--I assume all inputs will be of negligible size
-	private static String[] extendArray(String[] input, String element)
-	{	String[] returnme = new String[input.length+1];
-		for (int i=0; i<returnme.length-1; i++)
-		{	returnme[i] = input[i];
-		}
-		returnme[returnme.length-1] = element;
-		return returnme;
-	}
 
-	private static Token[] tokenise(String[] tokenStrings)
-	{	Token[] returnme = new Token[tokenStrings.length];
-		for (int i=0; i<tokenStrings.length; i++)
-		{	if (isNumeric(tokenStrings[i].charAt(0)))
+	private static LinkedList<Token> tokenise(LinkedList<String> tokenStrings)
+	{	LinkedList<Token> returnme = new LinkedList<Token>();
+		for (String s : tokenStrings)
+		{	if (s.matches("~?[0-9].*")) //is a number
 			{	try
 				{	//making sure to replace ~ here so we get negative floats
-					returnme[i] = new Token(Float.parseFloat(tokenStrings[i].replace('~','-')));
+					returnme.add(new Token(Float.parseFloat(s.replace('~','-'))));
 				}
 				catch (NumberFormatException e)
 				{	System.out.printf("Not a recognised number: %s%n",e.getMessage());
@@ -129,32 +120,16 @@ class Lexer
 				}
 			}
 			else
-			{	returnme[i] = new Token(tokenStrings[i]);
+			{	returnme.add(new Token(s));
 			}
 		}
 		return returnme;
 	}
-
-	private static boolean isNumeric(char input)
-	{	if (input == '0' || input == '1' || input == '2' || input == '3' ||
-		    input == '4' || input == '5' || input == '6' || input == '7' ||
-		    input == '8' || input == '9' || input == '.' || input == '~')
-		{	return true;
-		}
-		else
-		{	return false;
-		}
-	}
 }
 
 class Parser
-{	public static Node generateTree(Token[] originalInput)
-	{	//a linkedList is easier to work with IMO, although it's refusing to convert directly from the array
-		LinkedList<Token> input = new LinkedList<Token>();
-		for (int i=0; i<originalInput.length; i++)
-		{	input.add(originalInput[i]);
-		}
-		input.addLast(new Token("end")); //eof marker
+{	public static Node generateTree(LinkedList<Token> input)
+	{	input.addLast(new Token("end")); //eof marker
 
 		//supposed to use a stack--Java prefers using a deque
 		//we also use two stacks as we want to hold tokens and states, so we can output tokens on reductions
