@@ -2,6 +2,8 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.Deque;
 import java.util.ArrayDeque;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
  * Parsimonious: a mathematical lexer and parser.
@@ -17,7 +19,7 @@ public class Parsimonious
 {	public static void main(String[] args) throws java.io.IOException //declaring exception because code is cleaner and I think it's never thrown
 	{	while (true)
 		{	System.out.printf("Operators accepted: cos ! * + - (descending priority, cos in radians, ! rounds to integers)%n");
-			System.out.printf("Signed floating point numbers are accepted in the forms 0, 0.0 or .0 (negative numbers must use ~) %n");
+			System.out.printf("Signed floating point numbers are accepted in the forms 0 or 0.0 (negative numbers must use ~) %n");
 			System.out.printf("Type a mathematical expression and hit enter. All whitespace will be ignored.%n");
 
 			InputStreamReader input = new InputStreamReader(System.in);
@@ -29,14 +31,8 @@ public class Parsimonious
 				a = input.read();
 			}
 
-			//removing whitespace will concatenate adjacent numbers (1 + 2 2 == 1+22)
-			String strippedInput = Lexer.removeWhitespace(inputString);
-
-			//Separate String into tokens and validate operators
-			String[] tokenArray = Lexer.separateTokens(strippedInput);
-
-			//validate numbers and tokenise
-			Token[] mathsArray = Lexer.tokenise(tokenArray);
+			//lex according to regex
+			Token[] mathsArray = Lexer.lex(inputString);
 
 			//generate parse tree using LR(0) algorithm. This is the exciting bit.
 			Node parseTree = Parser.generateTree(mathsArray);
@@ -84,51 +80,28 @@ class Token
 }
 
 class Lexer
-{	public static String removeWhitespace(String input)
-	{	String returnme = "";
-		for (int i=0; i<input.length(); i++)
-		{	if((int)input.charAt(i) != 9 && (int)input.charAt(i) != 32) //not tab or space
-			{	returnme = returnme + input.charAt(i);
-			}
+{	public static Token[] lex(String s)
+	{	//match any of: - + * cos ! or a number
+		Pattern validTokens = Pattern.compile("-|\\+|\\*|cos|!|~?[0-9]+(\\.[0-9]+)?");
+		Matcher matcher = validTokens.matcher(s);
+		String[] tokens = new String[0];
+		while(matcher.find())
+		{	tokens = extendArray(tokens, matcher.group());
 		}
+		return tokenise(tokens);
+	}
+
+	//inefficient but quick and dirty--I assume all inputs will be of negligible size
+	private static String[] extendArray(String[] input, String element)
+	{	String[] returnme = new String[input.length+1];
+		for (int i=0; i<returnme.length-1; i++)
+		{	returnme[i] = input[i];
+		}
+		returnme[returnme.length-1] = element;
 		return returnme;
 	}
 
-	public static String[] separateTokens(String input)
-	{	String[] returnme = new String[0];
-		for (int i=0; i<input.length(); i++)
-		{	if (isNumeric(input.charAt(i)))
-			{	if (i != 0 && isNumeric(returnme[returnme.length-1].charAt(0))) //last token exists, is numeric, so extend with this character
-				{	returnme[returnme.length-1] = returnme[returnme.length-1] + input.charAt(i);
-				}
-				else
-				{	returnme = extendArray(returnme,input.charAt(i)+"");
-				}
-			}
-			else
-			{	try
-				{	if (Lexer.isValidOperator(input.charAt(i)+""))
-					{	returnme = extendArray(returnme,input.charAt(i)+""); //single character operator
-					}
-					else if (Lexer.isValidOperator("" + input.charAt(i) + input.charAt(i+1) + input.charAt(i+2)))
-					{	returnme = extendArray(returnme,"" + input.charAt(i) + input.charAt(i+1) + input.charAt(i+2)); //3 character operator
-						i += 2;
-					}
-					else
-					{	System.out.printf("Neither '%s' nor '%s' are valid operators.%n",input.charAt(i),""+input.charAt(i)+input.charAt(i+1)+input.charAt(i+2));
-						System.exit(1);
-					}
-				}
-				catch (StringIndexOutOfBoundsException e)
-				{	System.out.printf("Invalid operator length.%n");
-					System.exit(1);
-				}
-			}
-		}
-		return returnme;
-	}
-
-	public static Token[] tokenise(String[] tokenStrings)
+	private static Token[] tokenise(String[] tokenStrings)
 	{	Token[] returnme = new Token[tokenStrings.length];
 		for (int i=0; i<tokenStrings.length; i++)
 		{	if (isNumeric(tokenStrings[i].charAt(0)))
@@ -142,35 +115,16 @@ class Lexer
 				}
 			}
 			else
-			{	returnme[i] = new Token(tokenStrings[i]);	
+			{	returnme[i] = new Token(tokenStrings[i]);
 			}
 		}
 		return returnme;
 	}
 
-	//inefficient but quick and dirty--I assume all inputs will be of negligible size
-	private static String[] extendArray(String[] input, String element)
-	{	String[] returnme = new String[input.length+1];
-		for (int i=0; i<returnme.length-1; i++)
-		{	returnme[i] = input[i];
-		}
-		returnme[returnme.length-1] = element;
-		return returnme;
-	}
-
 	private static boolean isNumeric(char input)
-	{	if (input == '0' || input == '1' || input == '2' || input == '3' || 
-		    input == '4' || input == '5' || input == '6' || input == '7' || 
+	{	if (input == '0' || input == '1' || input == '2' || input == '3' ||
+		    input == '4' || input == '5' || input == '6' || input == '7' ||
 		    input == '8' || input == '9' || input == '.' || input == '~')
-		{	return true;
-		}
-		else
-		{	return false;
-		}
-	}
-
-	private static boolean isValidOperator(String input)
-	{	if (input.equals("+") || input.equals("-") || input.equals("*") || input.equals("!") || input.equals("cos"))
 		{	return true;
 		}
 		else
