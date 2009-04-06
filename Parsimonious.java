@@ -17,8 +17,7 @@
 
 import java.io.InputStreamReader;
 import java.util.LinkedList;
-import java.util.Deque;
-import java.util.ArrayDeque;
+import java.util.Stack;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -123,25 +122,23 @@ class Lexer
 			{	returnme.add(new Token(s));
 			}
 		}
+		returnme.add(new Token("end"));
 		return returnme;
 	}
 }
 
 class Parser
 {	public static Node generateTree(LinkedList<Token> input)
-	{	input.addLast(new Token("end")); //eof marker
-
-		//supposed to use a stack--Java prefers using a deque
-		//we also use two stacks as we want to hold tokens and states, so we can output tokens on reductions
-		Deque<Token> symbolStack = new ArrayDeque<Token>();
-		Deque<Integer> stateStack = new ArrayDeque<Integer>();
+	{	//we also use two stacks as we want to hold tokens and states, so we can output tokens on reductions
+		Stack<Token> symbolStack = new Stack<Token>();
+		Stack<Integer> stateStack = new Stack<Integer>();
 		stateStack.push(0); //start state
 
 		//we also need a stack to hold the pieces of our parse tree
-		Deque<Node> outputStack = new ArrayDeque<Node>();
+		Stack<Node> outputStack = new Stack<Node>();
 
 		while (true)
-		{	Token nextToken = input.peekFirst();
+		{	Token nextToken = input.peek();
 
 			if (Table.getAction(nextToken, stateStack.peek()) == Table.ERROR)
 			{	System.out.printf("Invalid syntax found.%n");
@@ -265,7 +262,7 @@ class Parser
 		}
 		else
 		{	LinkedList<Node> children = node.getChildren();
-			if (!node.getToken().isOperator()) //entire tree is just a number
+			if (!node.getToken().isOperator()) //node is a number so no children
 			{	return node.getToken().getNumber();
 			}
 			//can't use switch with string - would have been nice here :-(
