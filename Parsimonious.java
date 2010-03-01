@@ -152,8 +152,9 @@ class Parser
 						stateStack.pop();
 						stateStack.pop();
 						//output - to tree
-						Node child11 = outputStack.pop();
+						//pop() reverses order of the arguments, so we reorder
 						Node child12 = outputStack.pop();
+						Node child11 = outputStack.pop();
 						LinkedList<Node> children1 = new LinkedList<Node>();
 						children1.add(child11); children1.add(child12);
 						Node newNode1 = new Node(new Token("-"),children1);
