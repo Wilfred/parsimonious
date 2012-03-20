@@ -33,8 +33,9 @@ public class Parsimonious
 	{	Console console = System.console();
 		console.format("Operators accepted: cos ! * + - (descending priority, cos in radians, ! rounds to integers)\n");
 		console.format("Signed floating point numbers are accepted in the forms 0 or 0.0 (negative numbers must use ~)\n");
+		console.format("Type a mathematical expression and hit enter.\n\n");
 		while (true)
-		{	console.format("Type a mathematical expression and hit enter. All whitespace will be ignored.%n");
+		{	console.format("calc> ");
 
 			String inputString = console.readLine();
 			//lex according to regex
