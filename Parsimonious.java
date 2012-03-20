@@ -16,7 +16,7 @@
 // test cases: "3!" "cos 3!" "~1-~1" "3.3!" "1+2*3" "10-2"
 
 import java.io.Console;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Stack;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -38,7 +38,7 @@ public class Parsimonious
 
 			String inputString = console.readLine();
 			//lex according to regex
-			LinkedList<Token> tokens = Lexer.lex(inputString);
+			ArrayList<Token> tokens = Lexer.lex(inputString);
 
 			//generate parse tree using LR(0) algorithm. This is the exciting bit.
 			Node parseTree = Parser.generateTree(tokens);
@@ -86,11 +86,11 @@ class Token
 }
 
 class Lexer
-{	public static LinkedList<Token> lex(String s)
+{	public static ArrayList<Token> lex(String s)
 	{	//match any of: - + * cos ! or a number
 		Pattern validTokens = Pattern.compile("-|\\+|\\*|cos|!|~?[0-9]+(\\.[0-9]+)?");
 		Matcher matcher = validTokens.matcher(s);
-		LinkedList<String> tokenStrings = new LinkedList<String>();
+		ArrayList<String> tokenStrings = new ArrayList<String>();
 		while(matcher.find())
 		{	tokenStrings.add(matcher.group());
 		}
@@ -98,8 +98,8 @@ class Lexer
 	}
 
 
-	private static LinkedList<Token> tokenise(LinkedList<String> tokenStrings)
-	{	LinkedList<Token> returnme = new LinkedList<Token>();
+	private static ArrayList<Token> tokenise(ArrayList<String> tokenStrings)
+	{	ArrayList<Token> returnme = new ArrayList<Token>();
 		for (String s : tokenStrings)
 		{	if (s.matches("~?[0-9].*")) //is a number
 			{	try
@@ -121,7 +121,7 @@ class Lexer
 }
 
 class Parser
-{	public static Node generateTree(LinkedList<Token> input)
+{	public static Node generateTree(ArrayList<Token> input)
 	{	//we also use two stacks as we want to hold tokens and states, so we can output tokens on reductions
 		Stack<Token> symbolStack = new Stack<Token>();
 		Stack<Integer> stateStack = new Stack<Integer>();
@@ -131,14 +131,14 @@ class Parser
 		Stack<Node> outputStack = new Stack<Node>();
 
 		while (true)
-		{	Token nextToken = input.peek();
+		{	Token nextToken = input.get(0);
 
 			if (Table.getAction(nextToken, stateStack.peek()) == Table.ERROR)
 			{	System.out.printf("Invalid syntax found.%n");
 				System.exit(1);
 			}
 			else if (Table.getAction(nextToken, stateStack.peek()) == Table.SHIFT)
-			{	symbolStack.push(input.pop());
+			{	symbolStack.push(input.remove(0));
 				stateStack.push(Table.getStateAfterShift(nextToken,stateStack.peek()));
 			}
 			else if (Table.getAction(nextToken, stateStack.peek()) == Table.REDUCE)
@@ -155,7 +155,7 @@ class Parser
 						//pop() reverses order of the arguments, so we reorder
 						Node child12 = outputStack.pop();
 						Node child11 = outputStack.pop();
-						LinkedList<Node> children1 = new LinkedList<Node>();
+						ArrayList<Node> children1 = new ArrayList<Node>();
 						children1.add(child11); children1.add(child12);
 						Node newNode1 = new Node(new Token("-"),children1);
 						outputStack.push(newNode1);
@@ -168,7 +168,7 @@ class Parser
 						//output + to tree
 						Node child21 = outputStack.pop();
 						Node child22 = outputStack.pop();
-						LinkedList<Node> children2 = new LinkedList<Node>();
+						ArrayList<Node> children2 = new ArrayList<Node>();
 						children2.add(child21); children2.add(child22);
 						Node newNode2 = new Node(new Token("+"),children2);
 						outputStack.push(newNode2);
@@ -185,7 +185,7 @@ class Parser
 						//output * to tree
 						Node child41 = outputStack.pop();
 						Node child42 = outputStack.pop();
-						LinkedList<Node> children4 = new LinkedList<Node>();
+						ArrayList<Node> children4 = new ArrayList<Node>();
 						children4.add(child41); children4.add(child42);
 						Node newNode4 = new Node(new Token("*"),children4);
 						outputStack.push(newNode4);
@@ -255,7 +255,7 @@ class Parser
 		{	return node.getToken().getNumber();
 		}
 		else
-		{	LinkedList<Node> children = node.getChildren();
+		{	ArrayList<Node> children = node.getChildren();
 			if (!node.getToken().isOperator()) //node is a number so no children
 			{	return node.getToken().getNumber();
 			}
@@ -302,10 +302,10 @@ class Parser
 }
 
 class Node //simple immutable tree
-{	private LinkedList<Node> children;
+{	private ArrayList<Node> children;
 	private Token value;
 
-	public LinkedList<Node> getChildren()
+	public ArrayList<Node> getChildren()
 	{	return children;
 	}
 	public Token getToken()
@@ -313,18 +313,18 @@ class Node //simple immutable tree
 	}
 	public Node(Token t)
 	{	value = t;
-		children = new LinkedList<Node>();
+		children = new ArrayList<Node>();
 	}
 	public Node(Token t, Node child)
 	{	value = t;
-		children = new LinkedList<Node>();
+		children = new ArrayList<Node>();
 		children.add(child);
 	}
-	public Node(Token t, LinkedList<Node> kids)
+	public Node(Token t, ArrayList<Node> kids)
 	{	value = t;
 		children = kids;
 	}
-	public void update(Token t, LinkedList<Node> kids)
+	public void update(Token t, ArrayList<Node> kids)
 	{	value = t;
 		children = kids;
 	}
